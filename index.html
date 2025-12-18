@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Organizador de Trabajos</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+    <header>
+        <h1>Mi Organizador de Trabajos</h1>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h3>Agregar nuevo trabajo</h3>
+            <form id="job-form"> <div class="form-group">
+                    <label for="job-title">Enunciado (Título del trabajo):</label>
+                    <input type="text" id="job-title" placeholder="Ej: Diseñar el logo" required>
+                </div>
+                <div class="form-group">
+                    <label for="job-processes">Procesos (uno por línea):</label>
+                    <textarea id="job-processes" placeholder="Formato: [Nombre del Proceso]: [Nº de Días]
+Ej: 
+Imprimir: 2
+Cortar: 1
+Empaquetar" required></textarea>
+                </div>
+                <button type="submit">Agregar Trabajo</button>
+            </form>
+        </div>
+
+        <h2>Planificación (Próximos 7 días)</h2>
+        <p>Arrastra los trabajos de la columna "Pendientes" al día en que deseas que comiencen.</p>
+        
+        <div class="gantt-container">
+            <table id="gantt-chart">
+                <thead id="gantt-head">
+                    </thead>
+                <tbody id="gantt-body">
+                    </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+}
+
+header h1 {
+    color: #0056b3;
+    text-align: center;
+}
+
+main {
+    max-width: 1400px; /* Un poco más ancho para la nueva columna */
+    margin: 20px auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+h2, h3 {
+    color: #004a99;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 5px;
+}
+
+/* 1. Estilos del Formulario (sin cambios) */
+.form-container { margin-bottom: 30px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group input[type="text"],
+.form-group textarea {
+    width: 95%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+.form-group textarea {
+    height: 80px;
+    resize: vertical;
+}
+button[type="submit"] {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+button[type="submit"]:hover { background-color: #218838; }
+
+/* 2. Estilos de la Tabla Gantt (Actualizados) */
+.gantt-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+#gantt-chart {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#gantt-chart th,
+#gantt-chart td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+    height: 60px;
+}
+
+#gantt-chart th {
+    background-color: #eef5ff;
+    color: #0056b3;
+    font-size: 0.9em;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Columnas de información (Actualizadas) */
+#gantt-chart th.col-pending { width: 20%; }
+#gantt-chart th.col-duration { width: 8%; }
+#gantt-chart th.col-action { width: 10%; } /* Nueva columna */
+
+/* Columnas de los días */
+#gantt-chart th.day-header {
+    width: 10%; /* Ajustado para 7 días + 3 de info */
+    text-align: center;
+}
+#gantt-chart th.today {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Celdas del cuerpo */
+#gantt-chart td.day-cell {
+    vertical-align: top;
+}
+#gantt-chart td.day-cell.drag-over {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+#gantt-chart td.action-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 3. Estilo del "Job" y "Proceso" */
+
+.job-item {
+    background: #fdfdfd;
+    border: 1px solid #ccc;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: grab;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    font-size: 0.95em;
+    font-weight: bold;
+}
+.job-item.dragging {
+    opacity: 0.5;
+    background: #cce0ff;
+}
+
+.process-item {
+    /* Estilos de la caja azul (eliminados) */
+
+    font-size: 0.85em; /* Mantenemos el tamaño de letra */
+    margin-bottom: 3px; /* Mantenemos el espacio entre items */
+
+    /* Nuevos estilos para el texto */
+    color: #333; /* Color de texto oscuro */
+    white-space: normal; /* Permite que el texto baje a la siguiente línea */
+    word-wrap: break-word; /* Fuerza el corte de palabras muy largas */
+}
+}
+.process-item strong {
+    font-weight: 600;
+}
+
+/* 4. Estilo del nuevo botón Eliminar */
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+.delete-btn:hover {
+    background-color: #c82333;
+}
