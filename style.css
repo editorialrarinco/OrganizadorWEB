@@ -56,16 +56,19 @@ button[type="submit"] {
 button[type="submit"]:hover { background-color: #218838; }
 
 /* 2. Estilos de la Tabla Gantt (Actualizados) */
+/* 2. Estilos de la Tabla Gantt (Responsive Update) */
 .gantt-container {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: auto; /* Permite scroll horizontal */
     margin-top: 20px;
+    border: 1px solid #ddd; /* Borde contenedor para el scroll suave */
 }
 
 #gantt-chart {
     width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
+    border-collapse: separate; /* Necesario para sticky en algunos navegadores */
+    border-spacing: 0;
+    /* table-layout: fixed; <- Lo quitamos para permitir min-widths */
 }
 
 #gantt-chart th,
@@ -75,6 +78,7 @@ button[type="submit"]:hover { background-color: #218838; }
     text-align: left;
     vertical-align: top;
     height: 60px;
+    background: #fff; /* Fondo por defecto */
 }
 
 #gantt-chart th {
@@ -85,15 +89,40 @@ button[type="submit"]:hover { background-color: #218838; }
     vertical-align: middle;
 }
 
-/* Columnas de información (Actualizadas) */
-#gantt-chart th.col-pending { width: 20%; }
-#gantt-chart th.col-duration { width: 8%; }
-#gantt-chart th.col-action { width: 10%; } /* Nueva columna */
+/* STICKY COLUMN: Fijar la primera columna (Pendientes) */
+#gantt-chart th:first-child,
+#gantt-chart td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    border-right: 2px solid #ccc; /* Separador visual */
+}
 
-/* Columnas de los días */
+/* El header de la columna fija debe estar aún más arriba */
+#gantt-chart th:first-child {
+    z-index: 11;
+}
+
+/* Asegurar fondos correctos para que no sea transparente al scrollear */
+#gantt-chart th:first-child { background-color: #eef5ff; }
+#gantt-chart td:first-child { background-color: #fff; }
+
+
+/* Anchos de columnas responsive */
+#gantt-chart th.col-pending { 
+    min-width: 180px; /* Ancho fijo para la columna pegajosa */
+    width: 180px;
+}
+#gantt-chart th.col-duration { 
+    min-width: 80px; 
+}
+#gantt-chart th.col-action { 
+    min-width: 70px; 
+}
+
+/* Columnas de los días: Que no se aplasten */
 #gantt-chart th.day-header {
-    width: 10%; /* Ajustado para 7 días + 3 de info */
-    text-align: center;
+    min-width: 140px; /* Espacio suficiente para leer procesos */
 }
 #gantt-chart th.today {
     background-color: #007bff;
@@ -105,7 +134,7 @@ button[type="submit"]:hover { background-color: #218838; }
     vertical-align: top;
 }
 #gantt-chart td.day-cell.drag-over {
-    background-color: #d4edda;
+    background-color: #d4edda !important; /* Importante para sobreescribir el blanco sticky si fuera el caso */
     border-color: #28a745;
 }
 #gantt-chart td.action-cell {
@@ -142,7 +171,7 @@ button[type="submit"]:hover { background-color: #218838; }
     white-space: normal; /* Permite que el texto baje a la siguiente línea */
     word-wrap: break-word; /* Fuerza el corte de palabras muy largas */
 }
-}
+/*  */
 .process-item strong {
     font-weight: 600;
 }
@@ -159,4 +188,46 @@ button[type="submit"]:hover { background-color: #218838; }
 }
 .delete-btn:hover {
     background-color: #c82333;
+}
+
+/* 5. Ajustes Mobile */
+@media (max-width: 768px) {
+    body { padding: 5px; }
+    main { padding: 10px; max-width: 100%; }
+
+    /* Quitar sticky en móvil para ganar espacio y ver más días */
+    #gantt-chart th:first-child,
+    #gantt-chart td:first-child {
+        position: static; /* Ya no se pega */
+        border-right: 1px solid #ddd;
+        z-index: auto;
+    }
+
+    /* Reducir texto */
+    #gantt-chart th, 
+    #gantt-chart td {
+        padding: 4px;
+        font-size: 0.8em;
+        height: 50px;
+    }
+
+    /* Ajustar anchos para que quepan más */
+    #gantt-chart th.col-pending {
+        min-width: 100px; /* Más angosto */
+        width: 100px;
+        max-width: 100px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Cortar texto largo */
+    }
+
+    #gantt-chart th.day-header {
+        min-width: 60px; /* Días muy compactos */
+    }
+
+    /* Ocultar columnas menos importantes en móvil si se desea, o hacerlas muy chicas */
+    #gantt-chart th.col-duration,
+    #gantt-chart td.col-duration {
+        display: none; /* Ocultamos duración en móvil para ganar espacio */
+    }
 }
