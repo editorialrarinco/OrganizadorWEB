@@ -1,3 +1,32 @@
+// --- FIREBASE IMPORTS ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  onSnapshot,
+} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+// --- CONFIGURACIÓN FIREBASE ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAeY6vL0LfSglgXAu7NBsxih2VquuqVqBg",
+  authDomain: "rarincocalendario.firebaseapp.com",
+  projectId: "rarincocalendario",
+  storageBucket: "rarincocalendario.firebasestorage.app",
+  messagingSenderId: "166310143500",
+  appId: "1:166310143500:web:649a48727d5ced6028f029",
+  measurementId: "G-NB014GEB1J",
+};
+
+// Inicializar Firebase (solo si hay config, para evitar errores antes de pegar los datos)
+let db;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (e) {
+  console.warn("Firebase no configurado aún o error en config:", e);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   // --- 1. ESTRUCTURA DE DATOS ---
 
@@ -11,34 +40,96 @@ document.addEventListener("DOMContentLoaded", function () {
   const ganttBody = document.getElementById("gantt-body");
   let sevenDayKeys = [];
 
-  // --- 2. FUNCIONES DE DATOS ---
+  // --- 2. FUNCIONES DE DATOS (FIREBASE) ---
 
-  function saveData() {
-    localStorage.setItem("miOrganizadorData", JSON.stringify(appData));
+  // Pequeña función para mostrar estado en la UI (arriba a la derecha)
+  function showStatus(message, color = "black") {
+    let statusEl = document.getElementById("app-status");
+    if (!statusEl) {
+      statusEl = document.createElement("div");
+      statusEl.id = "app-status";
+      statusEl.style.position = "fixed";
+      statusEl.style.top = "10px";
+      statusEl.style.right = "10px";
+      statusEl.style.padding = "5px 10px";
+      statusEl.style.background = "rgba(255,255,255,0.9)";
+      statusEl.style.border = "1px solid #ccc";
+      statusEl.style.zIndex = "9999";
+      document.body.appendChild(statusEl);
+    }
+    statusEl.textContent = message;
+    statusEl.style.color = color;
+
+    // Borrar mensaje después de 3 seg
+    setTimeout(() => {
+      if (statusEl.textContent === message) statusEl.textContent = "";
+    }, 3000);
+  }
+
+  async function saveData() {
+    if (!db) {
+      showStatus("Error: No conectado a Firebase", "red");
+      return;
+    }
+    showStatus("Guardando...", "blue");
+    try {
+      await setDoc(doc(db, "organizador", "data"), appData);
+      console.log("Datos guardados en Firebase");
+      showStatus("¡Guardado en la nube!", "green");
+    } catch (e) {
+      console.error("Error al guardar:", e);
+      showStatus("Error al guardar: " + e.message, "red");
+    }
   }
 
   function loadData() {
-    const dataJSON = localStorage.getItem("miOrganizadorData");
-    if (dataJSON) {
-      appData = JSON.parse(dataJSON);
-      if (!appData.jobs) appData.jobs = {};
-      if (!appData.schedule) appData.schedule = {};
-      if (appData.pending) {
-        // Migración de datos viejos
-        delete appData.pending;
-        saveData();
-      }
-    } else {
-      const exampleJobId = "job-inicio";
-      appData.jobs[exampleJobId] = {
-        id: exampleJobId,
-        titulo: "Trabajo de Ejemplo",
-        procesos: [
-          { nombre: "Arrastrarme", dias: 1 },
-          { nombre: "Completar", dias: 2 },
-        ],
-      };
+    if (!db) {
+      showStatus("Modo Offline (Local o Error Config)", "orange");
+      console.warn(
+        "Base de datos no inicializada. Usando datos de ejemplo locales."
+      );
+      initExampleData();
+      renderApp();
+      return;
     }
+
+    // Escuchar cambios en tiempo real
+    onSnapshot(
+      doc(db, "organizador", "data"),
+      (docSnap) => {
+        if (docSnap.exists()) {
+          appData = docSnap.data();
+          // Asegurar estructura
+          if (!appData.jobs) appData.jobs = {};
+          if (!appData.schedule) appData.schedule = {};
+          renderApp();
+          showStatus("Sincronizado", "green");
+        } else {
+          console.log("No hay datos en Firebase. Creando ejemplo...");
+          initExampleData();
+          saveData(); // Guardar el ejemplo inicial en la nube
+          renderApp();
+        }
+      },
+      (error) => {
+        console.error("Error al escuchar cambios:", error);
+        showStatus("Error Conexión: " + error.message, "red");
+      }
+    );
+  }
+
+  function initExampleData() {
+    const exampleJobId = "job-inicio";
+    appData.jobs = {};
+    appData.jobs[exampleJobId] = {
+      id: exampleJobId,
+      titulo: "Trabajo de Ejemplo",
+      procesos: [
+        { nombre: "Arrastrarme", dias: 1 },
+        { nombre: "Completar", dias: 2 },
+      ],
+    };
+    appData.schedule = {};
   }
 
   // --- 3. FUNCIONES DE RENDERIZADO ---
@@ -335,7 +426,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // --- 8. INICIAR LA APLICACIÓN ---
   // (Este es el orden correcto: iniciar la app primero)
   loadData();
-  renderApp();
+  // renderApp(); // Se maneja dentro de loadData (snapshot callback)
 
   // --- 9. REGISTRAR EL SERVICE WORKER (PARA PWA) ---
   if ("serviceWorker" in navigator) {
